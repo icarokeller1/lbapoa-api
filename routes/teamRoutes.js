@@ -1,21 +1,32 @@
+// routes/teamRoutes.js
 import { Router } from 'express';
 import multer from 'multer';
-import path from 'path';
+import path from 'node:path';
+import fs from 'node:fs';
 import TeamModel from '../models/teamModel.js';
 
 export default function buildTeamRouter(db) {
   const router = Router();
   const teamModel = new TeamModel(db);
 
-  // configura upload (pasta uploads)
+  /* ----------------------------------------------------------
+   *  Configuração de upload
+   * -------------------------------------------------------- */
+  const uploadDir = path.join(process.cwd(), 'uploads');
+  fs.mkdirSync(uploadDir, { recursive: true });      // garante a pasta
+
   const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) =>
-      cb(null, Date.now() + path.extname(file.originalname))
+    destination: (_, __, cb) => cb(null, uploadDir),
+    filename: (_, file, cb) =>
+      cb(null, `${Date.now()}${path.extname(file.originalname)}`)
   });
+
   const upload = multer({ storage });
 
-  router.get('/', async (req, res) => {
+  /* ----------------------------------------------------------
+   *  Rotas
+   * -------------------------------------------------------- */
+  router.get('/', async (_req, res) => {
     res.json(await teamModel.findAll());
   });
 
@@ -28,7 +39,7 @@ export default function buildTeamRouter(db) {
     try {
       const payload = {
         ...req.body,
-        logo: req.file?.path
+        logo: req.file ? `uploads/${req.file.filename}` : null
       };
       const newTeam = await teamModel.create(payload);
       res.status(201).json(newTeam);
@@ -42,11 +53,12 @@ export default function buildTeamRouter(db) {
     try {
       const payload = {
         ...req.body,
-        logo: req.file?.path
+        logo: req.file ? `uploads/${req.file.filename}` : undefined
       };
-      const upd = await teamModel.update(req.params.id, payload);
-      res.json(upd);
+      const updated = await teamModel.update(req.params.id, payload);
+      res.json(updated);
     } catch (err) {
+      console.error(err);
       res.status(400).json({ error: 'Falha ao atualizar time.' });
     }
   });
