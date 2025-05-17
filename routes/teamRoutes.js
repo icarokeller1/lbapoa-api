@@ -64,8 +64,31 @@ export default function buildTeamRouter(db) {
   });
 
   router.delete('/:id', async (req, res) => {
-    await teamModel.remove(req.params.id);
-    res.sendStatus(204);
+    try {
+      const { id } = req.params;
+
+      // 1⟩ busca o time p/ saber o logo
+      const team = await teamModel.findById(id);
+      if (!team) return res.sendStatus(404);
+
+      // 2⟩ tenta remover o arquivo se o campo logo existir
+      if (team.logo) {
+        const filePath = path.join(process.cwd(), team.logo);
+        fs.unlink(filePath, (err) => {
+          if (err && err.code !== 'ENOENT') {
+            // loga mas não bloqueia a deleção do registro
+            console.warn(`Falha ao apagar logo ${filePath}:`, err.message);
+          }
+        });
+      }
+
+      // 3⟩ remove o registro
+      await teamModel.remove(id);
+      res.sendStatus(204);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Erro ao apagar time.' });
+    }
   });
 
   return router;
