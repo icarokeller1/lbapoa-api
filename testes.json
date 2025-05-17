@@ -1,0 +1,114 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-05-17T17:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.0",
+  "resources": [
+    {
+      "_id": "wrk_lbapoa",
+      "_type": "workspace",
+      "name": "lbapoa Teams API",
+      "description": ""
+    },
+    {
+      "_id": "env_lbapoa_base",
+      "_type": "environment",
+      "name": "Base Environment",
+      "parentId": "wrk_lbapoa",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "team_id": ""
+      }
+    },
+
+    {
+      "_id": "req_lbapoa_create",
+      "_type": "request",
+      "parentId": "wrk_lbapoa",
+      "name": "POST /teams – Create",
+      "method": "POST",
+      "url": "{{ base_url }}/teams",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          { "name": "nome",           "value": "LBAPOA FC" },
+          { "name": "instagram",      "value": "@lbapoa" },
+          { "name": "indPodeUsarMidia","value": "1" },
+          { "name": "logo",           "type": "file", "fileName": "/ABSOLUTE/PATH/TO/logo.png" }
+        ]
+      },
+      "tests": [
+        {
+          "id": "test_create",
+          "code": "const body = JSON.parse(response.body);\nexpect(response.status).to.equal(201);\nexpect(body).to.have.property('id');\n// guarda ID em env para as próximas chamadas\ninsomnia.setEnv('team_id', body.id);"
+        }
+      ]
+    },
+
+    {
+      "_id": "req_lbapoa_list",
+      "_type": "request",
+      "parentId": "wrk_lbapoa",
+      "name": "GET /teams – List All",
+      "method": "GET",
+      "url": "{{ base_url }}/teams",
+      "tests": [
+        {
+          "id": "test_list",
+          "code": "const arr = JSON.parse(response.body);\nexpect(response.status).to.equal(200);\nexpect(arr).to.be.an('array');\nexpect(arr.length).to.be.gte(1);"
+        }
+      ]
+    },
+
+    {
+      "_id": "req_lbapoa_get_one",
+      "_type": "request",
+      "parentId": "wrk_lbapoa",
+      "name": "GET /teams/{id}",
+      "method": "GET",
+      "url": "{{ base_url }}/teams/{{ team_id }}",
+      "tests": [
+        {
+          "id": "test_get_one",
+          "code": "const obj = JSON.parse(response.body);\nexpect(response.status).to.equal(200);\nexpect(obj.id).to.equal(parseInt(env.team_id));"
+        }
+      ]
+    },
+
+    {
+      "_id": "req_lbapoa_update",
+      "_type": "request",
+      "parentId": "wrk_lbapoa",
+      "name": "PUT /teams/{id} – Update",
+      "method": "PUT",
+      "url": "{{ base_url }}/teams/{{ team_id }}",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          { "name": "nome", "value": "LBAPOA FC (editado)" }
+        ]
+      },
+      "tests": [
+        {
+          "id": "test_update",
+          "code": "const obj = JSON.parse(response.body);\nexpect(response.status).to.equal(200);\nexpect(obj.nome).to.equal('LBAPOA FC (editado)');"
+        }
+      ]
+    },
+
+    {
+      "_id": "req_lbapoa_delete",
+      "_type": "request",
+      "parentId": "wrk_lbapoa",
+      "name": "DELETE /teams/{id}",
+      "method": "DELETE",
+      "url": "{{ base_url }}/teams/{{ team_id }}",
+      "tests": [
+        {
+          "id": "test_delete",
+          "code": "expect(response.status).to.equal(204);"
+        }
+      ]
+    }
+  ]
+}
