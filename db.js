@@ -1,15 +1,14 @@
 // db.js
+import dotenv from 'dotenv';
+dotenv.config();
 import { Pool } from 'pg';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.PGSSLMODE === 'no-verify'
-    ? { rejectUnauthorized: false }
-    : undefined
+  ssl: false,
 });
 
 export const initDb = async () => {
-  // cria tabelas se não existirem
   await pool.query(`
     CREATE TABLE IF NOT EXISTS teams (
       id SERIAL PRIMARY KEY,
