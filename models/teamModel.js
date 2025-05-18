@@ -5,14 +5,14 @@ export default class TeamModel {
 
   async findAll() {
     const { rows } = await this.db.query(
-      'SELECT id, nome, logoData, logoMime, instagram, indPodeUsarMidia FROM teams ORDER BY id'
+      'SELECT id, nome, logoData AS "logoData", logoMime AS "logoMime", instagram, indPodeUsarMidia AS "indPodeUsarMidia" FROM teams ORDER BY id'
     );
     return rows;
   }
 
   async findById(id) {
     const { rows } = await this.db.query(
-      'SELECT id, nome, logoData, logoMime, instagram, indPodeUsarMidia FROM teams WHERE id = $1',
+      'SELECT id, nome, logoData AS "logoData", logoMime AS "logoMime", instagram, indPodeUsarMidia AS "indPodeUsarMidia" FROM teams WHERE id = $1',
       [id]
     );
     return rows[0];
