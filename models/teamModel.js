@@ -1,65 +1,56 @@
-// models/teamModel.js
 export default class TeamModel {
   constructor(db) {
     this.db = db;
   }
 
   async findAll() {
-    return this.db.all(
-      `SELECT id, nome, logoData, logoMime, instagram, indPodeUsarMidia
-       FROM teams ORDER BY id`
+    const { rows } = await this.db.query(
+      'SELECT id, nome, logoData, logoMime, instagram, indPodeUsarMidia FROM teams ORDER BY id'
     );
+    return rows;
   }
 
   async findById(id) {
-    return this.db.get(
-      `SELECT id, nome, logoData, logoMime, instagram, indPodeUsarMidia
-       FROM teams WHERE id = ?`,
-      id
+    const { rows } = await this.db.query(
+      'SELECT id, nome, logoData, logoMime, instagram, indPodeUsarMidia FROM teams WHERE id = $1',
+      [id]
     );
+    return rows[0];
   }
 
   async create({ nome, instagram, indPodeUsarMidia, logoBuffer, logoMime }) {
-    const { lastID } = await this.db.run(
-      `INSERT INTO teams
-         (nome, logoData, logoMime, instagram, indPodeUsarMidia)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        nome,
-        logoBuffer || null,
-        logoMime || null,
-        instagram,
-        indPodeUsarMidia ? 1 : 0
-      ]
+    const { rows } = await this.db.query(
+      `INSERT INTO teams (nome, logoData, logoMime, instagram, indPodeUsarMidia)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, nome, logoData, logoMime, instagram, indPodeUsarMidia`,
+      [nome, logoBuffer || null, logoMime || null, instagram, indPodeUsarMidia ? true : false]
     );
-    return this.findById(lastID);
+    return rows[0];
   }
 
-  async update(
-    id,
-    { nome, instagram, indPodeUsarMidia, logoBuffer, logoMime }
-  ) {
-    await this.db.run(
+  async update(id, { nome, instagram, indPodeUsarMidia, logoBuffer, logoMime }) {
+    const { rows } = await this.db.query(
       `UPDATE teams SET
-         nome             = COALESCE(?, nome),
-         logoData         = COALESCE(?, logoData),
-         logoMime         = COALESCE(?, logoMime),
-         instagram        = COALESCE(?, instagram),
-         indPodeUsarMidia = COALESCE(?, indPodeUsarMidia)
-       WHERE id = ?`,
+         nome           = COALESCE($1, nome),
+         logoData       = COALESCE($2, logoData),
+         logoMime       = COALESCE($3, logoMime),
+         instagram      = COALESCE($4, instagram),
+         indPodeUsarMidia = COALESCE($5, indPodeUsarMidia)
+       WHERE id = $6
+       RETURNING id, nome, logoData, logoMime, instagram, indPodeUsarMidia`,
       [
         nome,
-        logoBuffer,
-        logoMime,
+        logoBuffer !== undefined ? logoBuffer : null,
+        logoMime !== undefined ? logoMime : null,
         instagram,
-        indPodeUsarMidia !== undefined ? (indPodeUsarMidia ? 1 : 0) : undefined,
-        id
+        indPodeUsarMidia !== undefined ? indPodeUsarMidia : null,
+        id,
       ]
     );
-    return this.findById(id);
+    return rows[0];
   }
 
   async remove(id) {
-    return this.db.run(`DELETE FROM teams WHERE id = ?`, id);
+    await this.db.query('DELETE FROM teams WHERE id = $1', [id]);
   }
 }

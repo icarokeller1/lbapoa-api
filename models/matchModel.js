@@ -5,61 +5,48 @@ export default class MatchModel {
   }
 
   async findAll() {
-    return this.db.all('SELECT * FROM matches ORDER BY dataHora DESC');
+    const { rows } = await this.db.query(
+      'SELECT id, timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio FROM matches ORDER BY dataHora DESC'
+    );
+    return rows;
   }
 
   async findById(id) {
-    return this.db.get('SELECT * FROM matches WHERE id = ?', id);
+    const { rows } = await this.db.query(
+      'SELECT id, timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio FROM matches WHERE id = $1',
+      [id]
+    );
+    return rows[0];
   }
 
-    async create(m) {
-        const {
-            timeA,
-            timeB,
-            dataHora,
-            torneio,
-            pontuacaoA,
-            pontuacaoB
-        } = m;
-        const pA = pontuacaoA != null ? pontuacaoA : null;
-        const pB = pontuacaoB != null ? pontuacaoB : null;
-
-        const { lastID } = await this.db.run(
-            `INSERT INTO matches
-            (timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio)
-            VALUES (?,?,?,?,?,?)`,
-            [timeA, timeB, pA, pB, dataHora, torneio]
-        );
-        return this.findById(lastID);
-    }
-
-  async update(id, m) {
-    const {
-        timeA,
-        timeB,
-        dataHora,
-        torneio,
-        pontuacaoA,
-        pontuacaoB
-    } = m;
-    const pA = pontuacaoA != null ? pontuacaoA : undefined;
-    const pB = pontuacaoB != null ? pontuacaoB : undefined;
-
-    await this.db.run(
-        `UPDATE matches SET
-        timeA      = COALESCE(?, timeA),
-        timeB      = COALESCE(?, timeB),
-        pontuacaoA = COALESCE(?, pontuacaoA),
-        pontuacaoB = COALESCE(?, pontuacaoB),
-        dataHora   = COALESCE(?, dataHora),
-        torneio    = COALESCE(?, torneio)
-        WHERE id = ?`,
-        [timeA, timeB, pA, pB, dataHora, torneio, id]
+  async create({ timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio }) {
+    const { rows } = await this.db.query(
+      `INSERT INTO matches
+         (timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio`,
+      [timeA, timeB, pontuacaoA ?? null, pontuacaoB ?? null, dataHora, torneio]
     );
-    return this.findById(id);
-    }
+    return rows[0];
+  }
+
+  async update(id, { timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio }) {
+    const { rows } = await this.db.query(
+      `UPDATE matches SET
+         timeA      = COALESCE($1, timeA),
+         timeB      = COALESCE($2, timeB),
+         pontuacaoA = COALESCE($3, pontuacaoA),
+         pontuacaoB = COALESCE($4, pontuacaoB),
+         dataHora   = COALESCE($5, dataHora),
+         torneio    = COALESCE($6, torneio)
+       WHERE id = $7
+       RETURNING id, timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio`,
+      [timeA, timeB, pontuacaoA ?? null, pontuacaoB ?? null, dataHora, torneio, id]
+    );
+    return rows[0];
+  }
 
   async remove(id) {
-    return this.db.run('DELETE FROM matches WHERE id = ?', id);
+    await this.db.query('DELETE FROM matches WHERE id = $1', [id]);
   }
 }
