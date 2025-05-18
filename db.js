@@ -1,38 +1,37 @@
 // db.js
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { Pool } from 'pg';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'lbapoa.sqlite');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.PGSSLMODE === 'no-verify'
+    ? { rejectUnauthorized: false }
+    : undefined
+});
 
 export const initDb = async () => {
-  const db = await open({ filename: DB_PATH, driver: sqlite3.Database });
-
-  // tabela de times (já existente)
-  await db.exec(`
+  // cria tabelas se não existirem
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS teams (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       nome TEXT NOT NULL,
-      logo TEXT,
+      logoData BYTEA,
+      logoMime TEXT,
       instagram TEXT,
-      indPodeUsarMidia INTEGER NOT NULL DEFAULT 0
+      indPodeUsarMidia BOOLEAN NOT NULL DEFAULT FALSE
     );
   `);
 
-  // 🚀 nova tabela de partidas
-  await db.exec(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS matches (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       timeA TEXT NOT NULL,
       timeB TEXT NOT NULL,
       pontuacaoA INTEGER,
       pontuacaoB INTEGER,
-      dataHora TEXT NOT NULL,       -- ISO string
+      dataHora TIMESTAMPTZ NOT NULL,
       torneio TEXT
     );
   `);
 
-  return db;
+  return pool;
 };

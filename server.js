@@ -13,12 +13,7 @@ const start = async () => {
 
   app.use(cors());
   app.use(express.json());
-  app.use('/uploads', express.static('uploads'));
-
-  // rotas existentes
   app.use('/teams', buildTeamRouter(db));
-
-  // nova rota para partidas
   app.use('/matches', buildMatchRouter(db));
 
   app.get('/', (_, res) => res.json({ status: 'OK' }));
