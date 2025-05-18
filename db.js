@@ -32,5 +32,12 @@ export const initDb = async () => {
     );
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS tournaments (
+      id SERIAL PRIMARY KEY,
+      nome TEXT NOT NULL
+    );
+  `);
+
   return pool;
 };

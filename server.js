@@ -3,7 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import { initDb } from './db.js';
 import buildTeamRouter from './routes/teamRoutes.js';
-import buildMatchRouter from './routes/matchRoutes.js';  // <-- import
+import buildMatchRouter from './routes/matchRoutes.js';
+import buildTournamentRouter from './routes/tournamentRoutes.js';
 
 const PORT = process.env.PORT || 3000;
 
@@ -15,6 +16,7 @@ const start = async () => {
   app.use(express.json());
   app.use('/teams', buildTeamRouter(db));
   app.use('/matches', buildMatchRouter(db));
+  app.use('/tournaments', buildTournamentRouter(db));
 
   app.get('/', (_, res) => res.json({ status: 'OK' }));
 
