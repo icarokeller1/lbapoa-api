@@ -33,6 +33,8 @@ export default function buildTeamRouter(db) {
   });
 
   router.post('/', upload.single('logo'), async (req, res) => {
+    console.log('>>> req.file:', req.file);
+    console.log('>>> req.body:', req.body);
     try {
       const payload = {
         ...req.body,
