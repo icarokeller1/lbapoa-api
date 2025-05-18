@@ -6,14 +6,14 @@ export default class MatchModel {
 
   async findAll() {
     const { rows } = await this.db.query(
-      'SELECT id, timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio FROM matches ORDER BY dataHora DESC'
+      'SELECT id, timeA AS "timeA", timeB AS "timeB", pontuacaoA AS "pontuacaoA", pontuacaoB AS "pontuacaoB", dataHora AS "dataHora", torneio FROM matches ORDER BY dataHora DESC'
     );
     return rows;
   }
 
   async findById(id) {
     const { rows } = await this.db.query(
-      'SELECT id, timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio FROM matches WHERE id = $1',
+      'SELECT id, timeA AS "timeA", timeB AS "timeB", pontuacaoA AS "pontuacaoA", pontuacaoB AS "pontuacaoB", dataHora AS "dataHora", torneio FROM matches WHERE id = $1',
       [id]
     );
     return rows[0];
