@@ -39,5 +39,17 @@ export const initDb = async () => {
     );
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS news (
+      id SERIAL PRIMARY KEY,
+      titulo         TEXT NOT NULL,
+      descricao      TEXT NOT NULL,
+      linkinstagram  TEXT,
+      data           DATE NOT NULL,
+      times          TEXT,    -- nomes separados por ';'
+      torneios       TEXT     -- nomes separados por ';'
+    );
+  `);
+
   return pool;
 };
