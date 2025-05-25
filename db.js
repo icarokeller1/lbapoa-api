@@ -70,10 +70,6 @@ UPDATE matches
   WHERE tB.nome = matches.timeb;
 
 ALTER TABLE matches
-  ALTER COLUMN teamA_id SET NOT NULL,
-  ALTER COLUMN teamB_id SET NOT NULL;
-
-ALTER TABLE matches
   DROP COLUMN IF EXISTS timea,
   DROP COLUMN IF EXISTS timeb;
 
