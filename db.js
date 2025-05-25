@@ -52,5 +52,37 @@ export const initDb = async () => {
     );
   `);
 
+  await pool.query(`
+    BEGIN;
+
+ALTER TABLE matches
+  ADD COLUMN teamA_id INTEGER,
+  ADD COLUMN teamB_id INTEGER;
+
+UPDATE matches
+  SET teamA_id = tA.id
+  FROM teams tA
+  WHERE tA.nome = matches.timea;
+
+UPDATE matches
+  SET teamB_id = tB.id
+  FROM teams tB
+  WHERE tB.nome = matches.timeb;
+
+ALTER TABLE matches
+  ALTER COLUMN teamA_id SET NOT NULL,
+  ALTER COLUMN teamB_id SET NOT NULL;
+
+ALTER TABLE matches
+  DROP COLUMN IF EXISTS timea,
+  DROP COLUMN IF EXISTS timeb;
+
+ALTER TABLE matches
+  ADD CONSTRAINT fk_match_teama FOREIGN KEY (teamA_id) REFERENCES teams(id),
+  ADD CONSTRAINT fk_match_teamb FOREIGN KEY (teamB_id) REFERENCES teams(id);
+
+COMMIT;
+  `);
+
   return pool;
 };
