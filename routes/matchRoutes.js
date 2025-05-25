@@ -6,23 +6,26 @@ export default function buildMatchRouter(db) {
   const router = Router();
   const matchModel = new MatchModel(db);
 
-  // Listar todas
   router.get('/', async (_req, res) => {
-    const all = await matchModel.findAll();
-    res.json(all);
+    res.json(await matchModel.findAll());
   });
 
-  // Obter uma por ID
   router.get('/:id', async (req, res) => {
     const m = await matchModel.findById(req.params.id);
     m ? res.json(m) : res.sendStatus(404);
   });
 
-  // Criar nova partida
   router.post('/', async (req, res) => {
     try {
-      // espera JSON com campos: timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio
-      const created = await matchModel.create(req.body);
+      const payload = {
+        teamAId:    parseInt(req.body.teamAId, 10),
+        teamBId:    parseInt(req.body.teamBId, 10),
+        pontuacaoA: req.body.pontuacaoA ?? null,
+        pontuacaoB: req.body.pontuacaoB ?? null,
+        dataHora:   req.body.dataHora,
+        torneio:    req.body.torneio,
+      };
+      const created = await matchModel.create(payload);
       res.status(201).json(created);
     } catch (err) {
       console.error(err);
@@ -30,10 +33,17 @@ export default function buildMatchRouter(db) {
     }
   });
 
-  // Atualizar
   router.put('/:id', async (req, res) => {
     try {
-      const updated = await matchModel.update(req.params.id, req.body);
+      const payload = {
+        teamAId:    req.body.teamAId ? parseInt(req.body.teamAId, 10) : undefined,
+        teamBId:    req.body.teamBId ? parseInt(req.body.teamBId, 10) : undefined,
+        pontuacaoA: req.body.pontuacaoA ?? undefined,
+        pontuacaoB: req.body.pontuacaoB ?? undefined,
+        dataHora:   req.body.dataHora,
+        torneio:    req.body.torneio,
+      };
+      const updated = await matchModel.update(req.params.id, payload);
       res.json(updated);
     } catch (err) {
       console.error(err);
@@ -41,7 +51,6 @@ export default function buildMatchRouter(db) {
     }
   });
 
-  // Deletar
   router.delete('/:id', async (req, res) => {
     await matchModel.remove(req.params.id);
     res.sendStatus(204);

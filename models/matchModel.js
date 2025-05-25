@@ -5,45 +5,71 @@ export default class MatchModel {
   }
 
   async findAll() {
-    const { rows } = await this.db.query(
-      'SELECT id, timeA AS "timeA", timeB AS "timeB", pontuacaoA AS "pontuacaoA", pontuacaoB AS "pontuacaoB", dataHora AS "dataHora", torneio FROM matches ORDER BY dataHora DESC'
-    );
-    return rows;
-  }
+      const { rows } = await this.db.query(
+        `SELECT
+          m.id,
+          m.teamA_id AS "teamAId",
+          tA.nome    AS "teamA",
+          m.teamB_id AS "teamBId",
+          tB.nome    AS "teamB",
+          m.pontuacaoA,
+          m.pontuacaoB,
+          m.dataHora,
+          m.torneio
+        FROM matches m
+        JOIN teams tA ON tA.id = m.teamA_id
+        JOIN teams tB ON tB.id = m.teamB_id
+        ORDER BY m.dataHora DESC`
+      );
+      return rows;
+    }
 
   async findById(id) {
     const { rows } = await this.db.query(
-      'SELECT id, timeA AS "timeA", timeB AS "timeB", pontuacaoA AS "pontuacaoA", pontuacaoB AS "pontuacaoB", dataHora AS "dataHora", torneio FROM matches WHERE id = $1',
+      `SELECT
+         m.id,
+         m.teamA_id AS "teamAId",
+         tA.nome    AS "teamA",
+         m.teamB_id AS "teamBId",
+         tB.nome    AS "teamB",
+         m.pontuacaoA,
+         m.pontuacaoB,
+         m.dataHora,
+         m.torneio
+       FROM matches m
+       JOIN teams tA ON tA.id = m.teamA_id
+       JOIN teams tB ON tB.id = m.teamB_id
+       WHERE m.id = $1`,
       [id]
     );
     return rows[0];
   }
 
-  async create({ timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio }) {
+  async create({ teamAId, teamBId, pontuacaoA, pontuacaoB, dataHora, torneio }) {
     const { rows } = await this.db.query(
       `INSERT INTO matches
-         (timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio`,
-      [timeA, timeB, pontuacaoA ?? null, pontuacaoB ?? null, dataHora, torneio]
+         (teamA_id, teamB_id, pontuacaoA, pontuacaoB, dataHora, torneio)
+       VALUES ($1,$2,$3,$4,$5,$6)
+       RETURNING id`,
+      [teamAId, teamBId, pontuacaoA ?? null, pontuacaoB ?? null, dataHora, torneio]
     );
-    return rows[0];
+    return this.findById(rows[0].id);
   }
 
-  async update(id, { timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio }) {
+  async update(id, { teamAId, teamBId, pontuacaoA, pontuacaoB, dataHora, torneio }) {
     const { rows } = await this.db.query(
       `UPDATE matches SET
-         timeA      = COALESCE($1, timeA),
-         timeB      = COALESCE($2, timeB),
+         teamA_id   = COALESCE($1, teamA_id),
+         teamB_id   = COALESCE($2, teamB_id),
          pontuacaoA = COALESCE($3, pontuacaoA),
          pontuacaoB = COALESCE($4, pontuacaoB),
          dataHora   = COALESCE($5, dataHora),
          torneio    = COALESCE($6, torneio)
        WHERE id = $7
-       RETURNING id, timeA, timeB, pontuacaoA, pontuacaoB, dataHora, torneio`,
-      [timeA, timeB, pontuacaoA ?? null, pontuacaoB ?? null, dataHora, torneio, id]
+       RETURNING id`,
+      [teamAId, teamBId, pontuacaoA ?? null, pontuacaoB ?? null, dataHora, torneio, id]
     );
-    return rows[0];
+    return this.findById(rows[0].id);
   }
 
   async remove(id) {

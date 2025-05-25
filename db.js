@@ -24,8 +24,8 @@ export const initDb = async () => {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS matches (
       id SERIAL PRIMARY KEY,
-      timeA TEXT NOT NULL,
-      timeB TEXT NOT NULL,
+      teamA_id INTEGER NOT NULL REFERENCES teams(id),
+      teamB_id INTEGER NOT NULL REFERENCES teams(id),
       pontuacaoA INTEGER,
       pontuacaoB INTEGER,
       dataHora TIMESTAMPTZ NOT NULL,
