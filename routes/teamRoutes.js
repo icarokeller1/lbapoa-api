@@ -15,6 +15,7 @@ export default function buildTeamRouter(db) {
     const { logoData, logoMime, apelido, ...rest } = team;
     return {
       ...rest,
+      apelido,
       logo: logoData
         ? `data:${logoMime};base64,${logoData.toString('base64')}`
         : null
