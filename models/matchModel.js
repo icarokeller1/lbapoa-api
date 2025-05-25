@@ -12,10 +12,10 @@ export default class MatchModel {
           tA.nome    AS "teamA",
           m.teamB_id AS "teamBId",
           tB.nome    AS "teamB",
-          m.pontuacaoA,
-          m.pontuacaoB,
-          m.dataHora,
-          m.torneio
+          m.pontuacaoA AS "pontuacaoA",
+          m.pontuacaoB AS "pontuacaoB",
+          m.dataHora AS "dataHora",
+          m.torneio AS "torneio"
         FROM matches m
         JOIN teams tA ON tA.id = m.teamA_id
         JOIN teams tB ON tB.id = m.teamB_id
@@ -32,10 +32,10 @@ export default class MatchModel {
          tA.nome    AS "teamA",
          m.teamB_id AS "teamBId",
          tB.nome    AS "teamB",
-         m.pontuacaoA,
-         m.pontuacaoB,
-         m.dataHora,
-         m.torneio
+         m.pontuacaoA AS "pontuacaoA",
+         m.pontuacaoB AS "pontuacaoB",
+         m.dataHora AS "dataHora",
+         m.torneio AS "torneio"
        FROM matches m
        JOIN teams tA ON tA.id = m.teamA_id
        JOIN teams tB ON tB.id = m.teamB_id
