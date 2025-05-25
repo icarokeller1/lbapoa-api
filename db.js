@@ -52,10 +52,5 @@ export const initDb = async () => {
     );
   `);
 
-  await pool.query(`
-    ALTER TABLE teams
-    ADD COLUMN IF NOT EXISTS apelido TEXT;
-  `);
-
   return pool;
 };
