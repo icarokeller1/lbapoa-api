@@ -12,7 +12,7 @@ export default function buildTeamRouter(db) {
 
   // helper para formatar saída JSON com data-URL
   function formatTeam(team) {
-    const { logoData, logoMime, ...rest } = team;
+    const { logoData, logoMime, apelido, ...rest } = team;
     return {
       ...rest,
       logo: logoData
@@ -38,6 +38,7 @@ export default function buildTeamRouter(db) {
     try {
       const payload = {
         ...req.body,
+        apelido: req.body.apelido || null,
         indPodeUsarMidia: req.body.indPodeUsarMidia === 'true' || req.body.indPodeUsarMidia === '1',
         logoBuffer: req.file?.buffer,
         logoMime: req.file?.mimetype
@@ -54,6 +55,7 @@ export default function buildTeamRouter(db) {
     try {
       const payload = {
         ...req.body,
+        apelido: req.body.apelido || null,
         indPodeUsarMidia: req.body.indPodeUsarMidia === 'true' || req.body.indPodeUsarMidia === '1',
         logoBuffer: req.file ? req.file.buffer : undefined,
         logoMime: req.file ? req.file.mimetype : undefined

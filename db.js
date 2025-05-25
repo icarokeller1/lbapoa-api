@@ -13,6 +13,7 @@ export const initDb = async () => {
     CREATE TABLE IF NOT EXISTS teams (
       id SERIAL PRIMARY KEY,
       nome TEXT NOT NULL,
+      apelido TEXT,
       logoData BYTEA,
       logoMime TEXT,
       instagram TEXT,
@@ -49,6 +50,11 @@ export const initDb = async () => {
       times          TEXT,    -- nomes separados por ';'
       torneios       TEXT     -- nomes separados por ';'
     );
+  `);
+
+  await pool.query(`
+    ALTER TABLE teams
+    ADD COLUMN IF NOT EXISTS apelido TEXT;
   `);
 
   return pool;
