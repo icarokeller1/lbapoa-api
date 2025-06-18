@@ -52,5 +52,10 @@ export const initDb = async () => {
     );
   `);
 
+  await pool.query(`
+    ALTER TABLE tournaments
+    ADD COLUMN IF NOT EXISTS link TEXT;
+  `);
+
   return pool;
 };

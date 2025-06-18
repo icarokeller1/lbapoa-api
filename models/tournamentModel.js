@@ -6,36 +6,37 @@ export default class TournamentModel {
 
   async findAll() {
     const { rows } = await this.db.query(
-      'SELECT id, nome FROM tournaments ORDER BY nome'
+      'SELECT id, nome, link FROM tournaments ORDER BY nome'
     );
     return rows;
   }
 
   async findById(id) {
     const { rows } = await this.db.query(
-      'SELECT id, nome FROM tournaments WHERE id = $1',
+      'SELECT id, nome, link FROM tournaments WHERE id = $1',
       [id]
     );
     return rows[0];
   }
 
-  async create({ nome }) {
+  async create({ nome, link }) {
     const { rows } = await this.db.query(
-      `INSERT INTO tournaments (nome)
-       VALUES ($1)
-       RETURNING id, nome`,
-      [nome]
+      `INSERT INTO tournaments (nome, link)
+       VALUES ($1,$2)
+       RETURNING id, nome, link`,
+      [nome, link]
     );
     return rows[0];
   }
 
-  async update(id, { nome }) {
+  async update(id, { nome, link }) {
     const { rows } = await this.db.query(
       `UPDATE tournaments
-         SET nome = COALESCE($1, nome)
-       WHERE id = $2
+         SET nome = COALESCE($1, nome),
+             link = COALESCE($2, link)
+       WHERE id = $3
        RETURNING id, nome`,
-      [nome, id]
+      [nome, link, id]
     );
     return rows[0];
   }

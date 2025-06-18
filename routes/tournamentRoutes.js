@@ -8,7 +8,7 @@ export default function buildTournamentRouter(db) {
 
   // Listar
   router.get('/', async (_req, res) => {
-    const all = await model.findAll();
+    const all = await model.findAll();          // já inclui link
     res.json(all);
   });
 
@@ -21,7 +21,10 @@ export default function buildTournamentRouter(db) {
   // Criar
   router.post('/', async (req, res) => {
     try {
-      const created = await model.create(req.body);
+      const created = await model.create({
+        nome: req.body.nome,
+        link: req.body.link || null      // <-- inclui link opcional
+      });
       res.status(201).json(created);
     } catch (err) {
       console.error(err);
@@ -32,7 +35,10 @@ export default function buildTournamentRouter(db) {
   // Atualizar
   router.put('/:id', async (req, res) => {
     try {
-      const updated = await model.update(req.params.id, req.body);
+      const updated = await model.update(req.params.id, {
+        nome: req.body.nome,
+        link: req.body.link              // pode vir undefined ou null
+      });
       res.json(updated);
     } catch (err) {
       console.error(err);
